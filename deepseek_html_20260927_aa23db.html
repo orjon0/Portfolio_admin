@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arzan Showjal Antu — Frontend Developer & Software QA Engineer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        display: ['"Space Grotesk"', 'sans-serif'],
+      },
+      colors: {
+        brand: {
+          bg: '#08080c',
+          surface: '#111218',
+          card: '#161822',
+          border: '#232636',
+          accent: 'var(--color-accent)',
+          'accent-glow': 'var(--color-accent-glow)',
+          'accent-dark': 'var(--color-accent-dark)'
+        }
+      },
+      animation: {
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'float-slow': 'float 10s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'gradient': 'gradientShift 8s ease infinite',
+        'spin-slow': 'spin 18s linear infinite',
+        'marquee': 'marquee 32s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-14px)' },
+        },
+        glow: {
+          '0%': { opacity: '0.5', filter: 'drop-shadow(0 0 15px var(--color-accent))' },
+          '100%': { opacity: '1', filter: 'drop-shadow(0 0 28px var(--color-accent))' }
+        },
+        gradientShift: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        marquee: {
+          'from': { transform: 'translateX(0)' },
+          'to': { transform: 'translateX(-50%)' },
+        }
+      }
+    }
+  }
+}
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+:root {
+  --color-accent: #00f0ff;
+  --color-accent-glow: rgba(0, 240, 255, 0.25);
+  --color-accent-dark: #00a8b3;
+  --cursor-size: 20px;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #08080c; }
+::-webkit-scrollbar-thumb { background: #232636; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+body {
+  background-color: #08080c;
+  color: #f1f5f9;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+#scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--color-accent-dark), var(--color-accent));
+  box-shadow: 0 0 12px var(--color-accent);
+  z-index: 9998;
+  transition: width .1s linear;
+}
+
+.custom-cursor {
+  position: fixed; top: 0; left: 0;
+  width: var(--cursor-size); height: var(--cursor-size);
+  border: 1.5px solid var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width .25s ease, height .25s ease, background-color .25s ease, border-color .25s ease;
+  z-index: 9999;
+  mix-blend-mode: difference;
+}
+.cursor-hover {
+  width: 52px !important; height: 52px !important;
+  background-color: var(--color-accent-glow);
+  border-color: var(--color-accent);
+}
+
+#bg-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0; pointer-events: none;
+}
+
+.glass-panel {
+  background: rgba(17, 18, 24, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.glass-card {
+  background: rgba(22, 24, 34, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all .35s cubic-bezier(.16, 1, .3, 1);
+}
+.glass-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 18px 40px -14px var(--color-accent-glow);
+}
+
+.text-accent { color: var(--color-accent); }
+.bg-accent { background-color: var(--color-accent); }
+.border-accent { border-color: var(--color-accent); }
+.shadow-accent { box-shadow: 0 0 22px var(--color-accent-glow); }
+
+::selection { background: var(--color-accent); color: #08080c; }
+
+.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-flip {
+  opacity: 0;
+  transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1);
+  will-change: opacity, transform;
+}
+.reveal        { transform: translateY(45px); }
+.reveal-left   { transform: translateX(-60px); }
+.reveal-right  { transform: translateX(60px); }
+.reveal-scale  { transform: scale(.9); }
+.reveal-flip   { transform: perspective(1000px) rotateX(-25deg) translateY(40px); }
+
+.reveal.in, .reveal-left.in, .reveal-right.in, .reveal-scale.in, .reveal-flip.in {
+  opacity: 1; transform: none;
+}
+
+.flip-card { perspective: 1400px; }
+.flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.16, 1, .3, 1);
+}
+.flip-card:hover .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+.flip-back { transform: rotateY(180deg); }
+
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex; width: max-content;
+  animation: marquee 32s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+.animated-gradient {
+  background-size: 220% auto;
+  animation: gradientShift 8s ease infinite;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .32;
+  pointer-events: none;
+}
+
+.tilt-card {
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1), box-shadow .5s ease, border-color .35s ease;
+  transform-style: preserve-3d;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(34px) scale(.95); }
+  to   { opacity: 1; transform: none; }
+}
+.card-in { animation: cardIn .75s cubic-bezier(.16, 1, .3, 1) both; }
+
+.shine { position: relative; overflow: hidden; }
+.shine::after {
+  content: '';
+  position: absolute; top: 0; left: -150%;
+  width: 60%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.16), transparent);
+  transform: skewX(-22deg);
+  transition: left .8s cubic-bezier(.16, 1, .3, 1);
+}
+.shine:hover::after { left: 160%; }
+
+.skill-bar-fill {
+  width: 0;
+  transition: width 1.4s cubic-bezier(.16, 1, .3, 1);
+  background: linear-gradient(90deg, var(--color-accent-dark), var(--color-accent));
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+@keyframes scrollCue {
+  0%   { transform: translateY(0); opacity: 0; }
+  35%  { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+.scroll-cue-dot { animation: scrollCue 1.8s ease-in-out infinite; }
+
+.slider-track {
+  display: flex;
+  transition: transform .8s cubic-bezier(.16, 1, .3, 1);
+}
+.slider-track > * { flex: 0 0 100%; }
+
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+.float-badge { animation: floatBadge 6s ease-in-out infinite; }
+
+.admin-tab-btn.active { background-color: var(--color-accent); color: #0b0b10; }
+
+/* ================= AI ASSISTANT STYLES ================= */
+#ai-toggle {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 45;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: #08080c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 8px 32px var(--color-accent-glow), 0 0 0 0 var(--color-accent-glow);
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s ease;
+  animation: aiPulse 3s ease-in-out infinite;
+}
+#ai-toggle:hover {
+  transform: scale(1.1) rotate(6deg);
+  box-shadow: 0 12px 40px var(--color-accent-glow), 0 0 0 12px transparent;
+}
+#ai-toggle svg { width: 26px; height: 26px; }
+
+@keyframes aiPulse {
+  0%, 100% { box-shadow: 0 8px 32px var(--color-accent-glow), 0 0 0 0 var(--color-accent-glow); }
+  50%      { box-shadow: 0 8px 32px var(--color-accent-glow), 0 0 0 14px transparent; }
+}
+
+/* Unread dot */
+#ai-unread {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #08080c;
+  animation: unreadBounce .8s ease-in-out infinite alternate;
+}
+@keyframes unreadBounce {
+  from { transform: scale(1); }
+  to   { transform: scale(1.25); }
+}
+
+/* Chat Panel */
+#ai-panel {
+  position: fixed;
+  bottom: 96px;
+  left: 24px;
+  z-index: 45;
+  width: min(400px, calc(100vw - 48px));
+  height: min(600px, calc(100vh - 140px));
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(17, 18, 24, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px) scale(.94);
+  transform-origin: bottom left;
+  transition: opacity .4s cubic-bezier(.16, 1, .3, 1),
+              transform .4s cubic-bezier(.16, 1, .3, 1);
+}
+#ai-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+  position: relative;
+}
+.ai-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #08080c;
+  flex-shrink: 0;
+  box-shadow: 0 0 18px var(--color-accent-glow);
+  animation: aiAvatarGlow 3s ease-in-out infinite alternate;
+}
+@keyframes aiAvatarGlow {
+  from { box-shadow: 0 0 12px var(--color-accent-glow); }
+  to   { box-shadow: 0 0 26px var(--color-accent-glow); }
+}
+.ai-avatar svg { width: 22px; height: 22px; }
+
+.ai-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-family: monospace;
+  color: #10b981; margin-top: 2px;
+}
+.ai-status .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10b981; box-shadow: 0 0 8px #10b981;
+  animation: pulse 2s ease-in-out infinite;
+}
+.ai-close {
+  margin-left: auto;
+  padding: 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: none; cursor: pointer;
+  color: #94a3b8; transition: all .25s;
+}
+.ai-close:hover { background: rgba(255,255,255,0.1); color: #fff; transform: rotate(90deg); }
+
+/* Messages */
+.ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-behavior: smooth;
+}
+.ai-messages::-webkit-scrollbar { width: 6px; }
+.ai-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+.msg-row {
+  display: flex;
+  gap: 10px;
+  max-width: 88%;
+  animation: msgIn .5s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+.msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+
+.msg-bubble {
+  padding: 11px 15px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+.msg-row.bot .msg-bubble {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
+  color: #e2e8f0;
+  border-bottom-left-radius: 6px;
+}
+.msg-row.user .msg-bubble {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: #08080c;
+  font-weight: 500;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 4px 16px var(--color-accent-glow);
+}
+.msg-row .msg-avatar {
+  width: 28px; height: 28px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 11px; font-weight: bold;
+}
+.msg-row.bot .msg-avatar {
+  background: var(--color-accent-glow); color: var(--color-accent);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.msg-row.user .msg-avatar {
+  background: rgba(255,255,255,0.08); color: #e2e8f0;
+}
+.msg-bubble a { color: var(--color-accent); text-decoration: underline; }
+.msg-bubble strong { color: #fff; font-weight: 700; }
+
+/* Typing indicator */
+.typing-row .msg-bubble {
+  display: flex; gap: 5px; padding: 14px 16px;
+}
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-accent);
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30%           { transform: translateY(-7px); opacity: 1; }
+}
+
+/* Suggestions */
+.ai-suggestions {
+  padding: 0 14px 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.suggestion-chip {
+  padding: 7px 12px;
+  font-size: 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.16, 1, .3, 1);
+  white-space: nowrap;
+}
+.suggestion-chip:hover {
+  background: var(--color-accent-glow);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+/* Input */
+.ai-input-wrap {
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 10px;
+  background: rgba(0,0,0,0.2);
+}
+#ai-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  transition: all .25s;
+}
+#ai-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+  background: rgba(255,255,255,0.06);
+}
+#ai-input::placeholder { color: #64748b; }
+.ai-send {
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--color-accent);
+  color: #08080c;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .25s cubic-bezier(.16, 1, .3, 1);
+  box-shadow: 0 4px 14px var(--color-accent-glow);
+}
+.ai-send:hover { transform: scale(1.05) rotate(-8deg); filter: brightness(1.1); }
+.ai-send:active { transform: scale(.95); }
+.ai-send svg { width: 18px; height: 18px; }
+
+@media (max-width: 640px) {
+  #ai-toggle { bottom: 20px; left: 20px; width: 54px; height: 54px; }
+  #ai-panel {
+    bottom: 86px; left: 12px;
+    width: calc(100vw - 24px);
+    height: calc(100vh - 120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+</style>
+</head>
+<body class="font-sans antialiased selection:bg-cyan-500 selection:text-black">
+
+<div id="scroll-progress"></div>
+<div id="cursor" class="custom-cursor hidden md:block"></div>
+<canvas id="bg-canvas"></canvas>
+<div id="toast-container" class="fixed top-20 right-6 z-50 flex flex-col gap-2"></div>
+
+<!-- ================= HEADER ================= -->
+<header class="fixed top-0 left-0 w-full z-40 glass-panel border-b border-white/5 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#hero" id="nav-brand-logo" class="group flex items-center gap-2 cursor-pointer select-none" title="Double click for Admin">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-card to-brand-surface border border-white/10 flex items-center justify-center font-display font-bold text-lg text-accent group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+        <span id="nav-initials">A</span>
+      </div>
+      <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-accent transition-colors">
+        <span id="nav-brand-name">Arzan Showjal Antu</span><span class="text-accent" id="hidden-admin-dot">.</span>
+      </span>
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-6">
+      <a href="#work" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">Work <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+      <a href="#services" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">Services <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+      <a href="#about" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">About <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+      <a href="#skills" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">Skills <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+      <a href="#experience" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">Experience <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+      <a href="#contact" class="relative text-sm font-medium text-slate-400 hover:text-accent transition-colors group">Contact <span class="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"></span></a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <span class="hidden xl:inline-block text-[10px] font-mono text-slate-500 border border-white/5 px-2 py-1 rounded bg-white/5" title="Keyboard Shortcut">
+        Press <kbd class="text-accent">Ctrl + Shift + A</kbd>
+      </span>
+      <a href="#contact" class="shine flex px-4 py-2 rounded-lg bg-accent text-slate-950 font-semibold text-xs hover:brightness-110 shadow-accent transition-all items-center gap-1.5">
+        <span>Let's Talk</span>
+        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="relative z-10 pt-24">
+
+  <!-- HERO -->
+  <section id="hero" class="min-h-[94vh] flex items-center justify-center relative px-6 py-12 overflow-hidden border-b border-white/5">
+    <div class="absolute inset-0 w-full h-full z-0 overflow-hidden">
+      <video id="hero-bg-video" class="w-full h-full object-cover scale-105 filter brightness-[0.32] contrast-125" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80">
+        <source id="hero-bg-video-src" src="https://assets.mixkit.co/videos/preview/mixkit-developer-working-on-code-41551-large.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-gradient-to-b from-brand-bg/85 via-brand-bg/55 to-brand-bg"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(8,8,12,0.85)_100%)]"></div>
+      <div class="orb w-72 h-72 bg-accent/40 -top-10 -left-10 animate-float-slow"></div>
+      <div class="orb w-80 h-80 bg-fuchsia-500/25 bottom-0 right-0 animate-float"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto text-center z-10 relative">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md reveal-scale">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-xs font-medium text-slate-300 tracking-wide uppercase">Open to Frontend &amp; QA Roles</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold tracking-tight leading-none mb-6">
+        <span id="hero-display-name" class="block bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400 animated-gradient">Arzan Showjal Antu</span>
+        <span id="hero-display-title" class="block mt-3 text-2xl sm:text-4xl md:text-5xl font-mono text-accent tracking-normal font-normal">— Frontend Developer &amp; Software QA Engineer</span>
+      </h1>
+
+      <p id="hero-display-tagline" class="text-lg sm:text-2xl font-light text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed drop-shadow-md">
+        CSE graduate building responsive, high-performance web interfaces with HTML, CSS &amp; JavaScript — backed by Java fundamentals and a QA mindset.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#work" class="shine w-full sm:w-auto px-8 py-3.5 rounded-xl bg-accent text-slate-950 font-bold text-sm hover:brightness-110 hover:-translate-y-1 shadow-accent transition-all flex items-center justify-center gap-2">
+          <span>Explore Work</span>
+          <i data-lucide="folder-git-2" class="w-4 h-4"></i>
+        </a>
+        <a href="#contact" class="w-full sm:w-auto px-8 py-3.5 rounded-xl glass-panel text-slate-200 font-semibold text-sm hover:bg-white/10 hover:text-accent hover:-translate-y-1 transition-all flex items-center justify-center gap-2 border border-white/10">
+          <span>Contact Me</span>
+          <i data-lucide="send" class="w-4 h-4 text-accent"></i>
+        </a>
+      </div>
+
+      <div class="hidden lg:flex absolute -left-24 top-8 float-badge items-center gap-2 px-3 py-2 rounded-xl glass-panel border border-white/10 text-[11px] font-mono text-slate-300">
+        <i data-lucide="code-2" class="w-3.5 h-3.5 text-accent"></i> Clean Code
+      </div>
+      <div class="hidden lg:flex absolute -right-24 top-32 float-badge items-center gap-2 px-3 py-2 rounded-xl glass-panel border border-white/10 text-[11px] font-mono text-slate-300" style="animation-delay:-2s">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-accent"></i> QA Mindset
+      </div>
+      <div class="hidden lg:flex absolute -left-16 bottom-10 float-badge items-center gap-2 px-3 py-2 rounded-xl glass-panel border border-white/10 text-[11px] font-mono text-slate-300" style="animation-delay:-4s">
+        <i data-lucide="layers" class="w-3.5 h-3.5 text-accent"></i> Design Systems
+      </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
+      <span class="text-[10px] font-mono uppercase tracking-[0.25em] text-slate-500">Scroll</span>
+      <div class="w-5 h-9 rounded-full border border-white/15 flex justify-center pt-1.5">
+        <span class="scroll-cue-dot w-1 h-1 rounded-full bg-accent"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <section class="py-8 border-b border-white/5 bg-brand-surface/40 overflow-hidden">
+    <div class="marquee-mask">
+      <div class="marquee-track gap-10">
+        <div class="flex gap-10 shrink-0">
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="code" class="w-4 h-4 text-accent"></i> HTML5</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="palette" class="w-4 h-4 text-accent"></i> CSS3</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="braces" class="w-4 h-4 text-accent"></i> JavaScript ES6+</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="coffee" class="w-4 h-4 text-accent"></i> Java</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="bug" class="w-4 h-4 text-accent"></i> Software Testing</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="shield-check" class="w-4 h-4 text-accent"></i> Quality Assurance</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="pen-tool" class="w-4 h-4 text-accent"></i> Graphic Design</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="file-spreadsheet" class="w-4 h-4 text-accent"></i> MS Office</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="smartphone" class="w-4 h-4 text-accent"></i> Responsive</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="users" class="w-4 h-4 text-accent"></i> Teamwork</span>
+        </div>
+        <div class="flex gap-10 shrink-0" aria-hidden="true">
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="code" class="w-4 h-4 text-accent"></i> HTML5</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="palette" class="w-4 h-4 text-accent"></i> CSS3</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="braces" class="w-4 h-4 text-accent"></i> JavaScript ES6+</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="coffee" class="w-4 h-4 text-accent"></i> Java</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="bug" class="w-4 h-4 text-accent"></i> Software Testing</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="shield-check" class="w-4 h-4 text-accent"></i> Quality Assurance</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="pen-tool" class="w-4 h-4 text-accent"></i> Graphic Design</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="file-spreadsheet" class="w-4 h-4 text-accent"></i> MS Office</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="smartphone" class="w-4 h-4 text-accent"></i> Responsive</span>
+          <span class="flex items-center gap-2 text-sm font-mono text-slate-400"><i data-lucide="users" class="w-4 h-4 text-accent"></i> Teamwork</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="py-20 px-6 relative">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="reveal-flip glass-card rounded-2xl p-6 text-center tilt-card" style="transition-delay:.05s">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
+        <div class="text-3xl sm:text-4xl font-display font-extrabold text-accent" data-count="3" data-suffix="">0</div>
+        <div class="text-xs text-slate-400 mt-1">Degrees Earned</div>
+      </div>
+      <div class="reveal-flip glass-card rounded-2xl p-6 text-center tilt-card" style="transition-delay:.15s">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="target" class="w-6 h-6"></i></div>
+        <div class="text-3xl sm:text-4xl font-display font-extrabold text-accent" data-count="3.03" data-decimals="2" data-suffix="">0</div>
+        <div class="text-xs text-slate-400 mt-1">B.Sc. CSE CGPA</div>
+      </div>
+      <div class="reveal-flip glass-card rounded-2xl p-6 text-center tilt-card" style="transition-delay:.25s">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="award" class="w-6 h-6"></i></div>
+        <div class="text-3xl sm:text-4xl font-display font-extrabold text-accent" data-count="2" data-suffix="">0</div>
+        <div class="text-xs text-slate-400 mt-1">Certifications</div>
+      </div>
+      <div class="reveal-flip glass-card rounded-2xl p-6 text-center tilt-card" style="transition-delay:.35s">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="briefcase" class="w-6 h-6"></i></div>
+        <div class="text-3xl sm:text-4xl font-display font-extrabold text-accent" data-count="1.5" data-decimals="1" data-suffix="+">0</div>
+        <div class="text-xs text-slate-400 mt-1">Years Teaching</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work" class="py-24 px-6 relative border-t border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div class="reveal-left">
+          <div class="flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+            <i data-lucide="folder-git-2" class="w-4 h-4"></i><span>Featured Portfolio</span>
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight">Selected Projects</h2>
+          <p class="text-slate-400 text-sm mt-3 max-w-lg">A curated set of interfaces &amp; applications built with obsessive attention to motion and detail.</p>
+        </div>
+
+        <div id="project-filters" class="reveal-right flex flex-wrap gap-2 p-1.5 rounded-xl bg-brand-surface border border-white/5">
+          <button data-filter="all" class="filter-btn px-4 py-2 rounded-lg text-xs font-medium transition-all bg-accent text-slate-950">All</button>
+          <button data-filter="Frontend" class="filter-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all">Frontend</button>
+          <button data-filter="Web Apps" class="filter-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all">Web Apps</button>
+          <button data-filter="UI/UX" class="filter-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all">UI/UX</button>
+          <button data-filter="Java" class="filter-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all">Java</button>
+        </div>
+      </div>
+
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="py-24 px-6 border-t border-white/5 bg-brand-surface/30 relative">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <div class="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+          <i data-lucide="sparkles" class="w-4 h-4"></i><span>What I Do</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight">Services &amp; Expertise</h2>
+        <p class="text-slate-400 text-sm mt-4 max-w-xl mx-auto">Hover a card to flip it and discover the details.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.05s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="monitor-smartphone" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">Frontend Design</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Pixel-perfect, responsive interfaces with modern CSS &amp; motion.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="monitor-smartphone" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Semantic HTML5</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Advanced CSS3 &amp; animations</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Mobile-first layouts</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Cross-browser testing</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.1s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="braces" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">JavaScript Apps</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Interactive, state-driven single page experiences.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="braces" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> ES6+ architecture</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> LocalStorage &amp; state</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> API integration</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Performance tuning</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.15s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="coffee" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">Java Development</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Solid object-oriented software foundations.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="coffee" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> OOP principles</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Data structures</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> REST endpoints</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Clean architecture</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.2s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="bug" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">Software Testing &amp; QA</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Formally trained in testing methodology and quality assurance.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="bug" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Manual testing basics</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Test case writing</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Bug reporting</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> QA documentation</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.25s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="wand-2" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">UI/UX &amp; Motion</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Interfaces that feel alive and effortless to use.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="wand-2" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Micro-interactions</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Design systems</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Prototyping</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Accessibility</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card h-72 reveal-flip" style="transition-delay:.3s">
+          <div class="flip-inner">
+            <div class="flip-face glass-card p-6 flex flex-col justify-between">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="pen-tool" class="w-6 h-6"></i></div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white mb-2">Design &amp; Documentation</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Graphic design plus polished Word, Excel &amp; PowerPoint decks.</p>
+              </div>
+              <span class="text-[10px] font-mono text-accent flex items-center gap-1">Hover to flip <i data-lucide="rotate-cw" class="w-3 h-3"></i></span>
+            </div>
+            <div class="flip-face flip-back glass-card p-6 bg-gradient-to-br from-brand-card to-brand-surface flex flex-col justify-between border-accent/40">
+              <i data-lucide="pen-tool" class="w-7 h-7 text-accent"></i>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Graphic design</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> MS Word &amp; Excel</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> PowerPoint decks</li>
+                <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-accent mt-0.5"></i> Research &amp; reporting</li>
+              </ul>
+              <a href="#contact" class="text-[11px] font-bold text-accent hover:underline">Start a project →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="py-24 px-6 border-t border-white/5 bg-brand-surface/40 relative">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div class="reveal-left">
+          <div class="flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+            <i data-lucide="user" class="w-4 h-4"></i><span>Background &amp; Craft</span>
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight mb-6">About Me</h2>
+          <div id="about-display-text" class="space-y-4 text-slate-300 text-base leading-relaxed"></div>
+
+          <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
+            <div><div class="text-3xl font-display font-bold text-accent">3.03</div><div class="text-xs text-slate-400 mt-1">B.Sc. CSE CGPA</div></div>
+            <div><div class="text-3xl font-display font-bold text-accent">5.00</div><div class="text-xs text-slate-400 mt-1">HSC GPA</div></div>
+            <div><div class="text-3xl font-display font-bold text-accent">2</div><div class="text-xs text-slate-400 mt-1">Certifications</div></div>
+          </div>
+        </div>
+
+        <div class="relative reveal-right">
+          <div class="aspect-square rounded-3xl glass-card p-8 flex flex-col justify-between border-white/10 relative overflow-hidden group">
+            <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -top-16 w-52 h-52 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="flex justify-between items-start z-10">
+              <span class="text-xs font-mono text-accent">STATUS: CREATING</span>
+              <i data-lucide="sparkles" class="w-8 h-8 text-slate-500 group-hover:text-accent group-hover:rotate-12 transition-all duration-500"></i>
+            </div>
+            <div class="z-10 my-auto">
+              <p class="font-mono text-xs text-accent mb-2">// Design Philosophy</p>
+              <blockquote class="text-xl sm:text-2xl font-display font-medium text-white italic">
+                "Design is not just how it looks; it is how motion, interaction, and clean code seamlessly bring ideation to life."
+              </blockquote>
+            </div>
+            <div class="flex items-center gap-3 z-10 pt-4 border-t border-white/5">
+              <div class="w-3 h-3 rounded-full bg-accent animate-pulse"></div>
+              <span id="about-card-role" class="text-xs font-mono text-slate-400">Frontend Developer &amp; Software QA Engineer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="py-24 px-6 border-t border-white/5 bg-brand-surface/30 relative">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-5 reveal-left">
+          <div class="flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+            <i data-lucide="terminal" class="w-4 h-4"></i><span>Core Stack</span>
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight mb-6">Skills &amp; Tech Stack</h2>
+          <p id="skills-display-summary" class="text-slate-400 text-base leading-relaxed mb-8">
+            Specialized in modern front-end architecture, HTML5, custom CSS3 animations, ES6+ JavaScript logic, Java fundamentals, and formal software testing &amp; quality assurance.
+          </p>
+          <div class="p-6 rounded-2xl glass-panel border border-white/10 hover:border-accent/40 transition-colors">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="p-3 rounded-xl bg-accent/10 text-accent"><i data-lucide="palette" class="w-6 h-6"></i></div>
+              <div>
+                <h4 class="font-bold text-white text-base">Silvia Motion Aesthetic</h4>
+                <p class="text-xs text-slate-400">High-contrast, dark-mode glassmorphic interface</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 leading-normal">
+              Every element is crafted with precision for high visual engagement, quick load speeds, and multi-device adaptability.
+            </p>
+          </div>
+        </div>
+        <div class="lg:col-span-7">
+          <div id="skills-list" class="space-y-6"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE & EDUCATION -->
+  <section id="experience" class="py-24 px-6 border-t border-white/5 relative">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <div class="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i><span>Timeline</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight">Experience &amp; Education</h2>
+        <p class="text-slate-400 text-sm mt-4 max-w-xl mx-auto">Teaching, computer science, and continuous certification.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="reveal-left">
+          <h3 class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent mb-6">
+            <i data-lucide="briefcase" class="w-4 h-4"></i> Professional Experience
+          </h3>
+          <div id="experience-list" class="space-y-6 pl-6 border-l border-white/10"></div>
+        </div>
+        <div class="reveal-right">
+          <h3 class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent mb-6">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i> Education
+          </h3>
+          <div id="education-list" class="space-y-6 pl-6 border-l border-white/10"></div>
+        </div>
+      </div>
+
+      <div class="mt-16 reveal">
+        <h3 class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent mb-6">
+          <i data-lucide="award" class="w-4 h-4"></i> Certifications
+        </h3>
+        <div id="certificates-list" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="py-24 px-6 border-t border-white/5 relative overflow-hidden">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <div class="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+          <i data-lucide="quote" class="w-4 h-4"></i><span>Kind Words</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight">What People Say</h2>
+      </div>
+      <div class="relative reveal-scale">
+        <div class="overflow-hidden rounded-3xl">
+          <div id="testimonial-track" class="slider-track">
+            <div class="px-2"><div class="glass-card rounded-3xl p-8 sm:p-12 text-center border-white/10">
+              <div class="w-14 h-14 mx-auto mb-5 rounded-2xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="quote" class="w-7 h-7"></i></div>
+              <p class="text-lg sm:text-xl text-slate-200 leading-relaxed italic mb-6">"Arzan delivered a stunning, buttery-smooth frontend with animations that made our product feel premium. Communication was flawless."</p>
+              <div class="font-display font-bold text-white">Sophia Vance</div>
+              <div class="text-xs font-mono text-accent mt-1">Design Lead · Studio Nova</div>
+            </div></div>
+            <div class="px-2"><div class="glass-card rounded-3xl p-8 sm:p-12 text-center border-white/10">
+              <div class="w-14 h-14 mx-auto mb-5 rounded-2xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="quote" class="w-7 h-7"></i></div>
+              <p class="text-lg sm:text-xl text-slate-200 leading-relaxed italic mb-6">"The Java backend and the JS interface worked together seamlessly. Clean code, sharp UI, and delivered ahead of schedule."</p>
+              <div class="font-display font-bold text-white">Daniel Reyes</div>
+              <div class="text-xs font-mono text-accent mt-1">CTO · Northline Systems</div>
+            </div></div>
+            <div class="px-2"><div class="glass-card rounded-3xl p-8 sm:p-12 text-center border-white/10">
+              <div class="w-14 h-14 mx-auto mb-5 rounded-2xl bg-accent/10 text-accent flex items-center justify-center"><i data-lucide="quote" class="w-7 h-7"></i></div>
+              <p class="text-lg sm:text-xl text-slate-200 leading-relaxed italic mb-6">"Every micro-interaction felt intentional. Our bounce rate dropped and the site finally matches our brand energy."</p>
+              <div class="font-display font-bold text-white">Amara Osei</div>
+              <div class="text-xs font-mono text-accent mt-1">Founder · Lumen Studio</div>
+            </div></div>
+          </div>
+        </div>
+        <button id="t-prev" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-5 p-3 rounded-full glass-panel border border-white/10 text-slate-300 hover:text-accent hover:border-accent transition-all"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+        <button id="t-next" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-5 p-3 rounded-full glass-panel border border-white/10 text-slate-300 hover:text-accent hover:border-accent transition-all"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+        <div id="t-dots" class="flex justify-center gap-2 mt-6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="py-24 px-6 border-t border-white/5 bg-brand-surface/30 relative">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16 reveal">
+        <div class="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3">
+          <i data-lucide="send" class="w-4 h-4"></i><span>Get In Touch</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-display font-bold tracking-tight mb-4">Let's Build Together</h2>
+        <p class="text-slate-400 text-base max-w-xl mx-auto">Have a new project, software development task, or design inquiry? Drop me a message!</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div class="md:col-span-5 space-y-6 reveal-left">
+          <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-start gap-4 hover:border-accent/40 transition-colors">
+            <div class="p-3 rounded-xl bg-accent/10 text-accent shrink-0"><i data-lucide="mail" class="w-6 h-6"></i></div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-mono text-slate-400 uppercase">Email Me</h4>
+              <a id="contact-email-display" href="mailto:antuorjon@gmail.com" class="text-white font-medium hover:text-accent transition-colors text-sm sm:text-base break-all">antuorjon@gmail.com</a>
+            </div>
+          </div>
+          <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-start gap-4 hover:border-accent/40 transition-colors">
+            <div class="p-3 rounded-xl bg-accent/10 text-accent shrink-0"><i data-lucide="phone" class="w-6 h-6"></i></div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-mono text-slate-400 uppercase">Call Me</h4>
+              <a id="contact-phone-display" href="tel:+8801889020763" class="text-white font-medium hover:text-accent transition-colors text-sm sm:text-base">+880 1889-020763</a>
+            </div>
+          </div>
+          <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-start gap-4 hover:border-accent/40 transition-colors">
+            <div class="p-3 rounded-xl bg-accent/10 text-accent shrink-0"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
+            <div>
+              <h4 class="text-xs font-mono text-slate-400 uppercase">Location</h4>
+              <p id="contact-location-display" class="text-white font-medium text-sm sm:text-base">Charmohisha, Barishal, Bangladesh</p>
+            </div>
+          </div>
+          <div class="p-6 rounded-2xl glass-panel border border-white/10">
+            <h4 class="text-xs font-mono text-slate-400 uppercase mb-4">Connect Socially</h4>
+            <div id="social-links-container" class="flex items-center gap-3">
+              <a id="social-github" href="#" target="_blank" class="p-3 rounded-xl bg-white/5 hover:bg-accent hover:text-slate-950 hover:-translate-y-1 text-slate-300 transition-all"><i data-lucide="github" class="w-5 h-5"></i></a>
+              <a id="social-linkedin" href="#" target="_blank" class="p-3 rounded-xl bg-white/5 hover:bg-accent hover:text-slate-950 hover:-translate-y-1 text-slate-300 transition-all"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+              <a id="social-twitter" href="#" target="_blank" class="p-3 rounded-xl bg-white/5 hover:bg-accent hover:text-slate-950 hover:-translate-y-1 text-slate-300 transition-all"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+              <a id="social-instagram" href="#" target="_blank" class="p-3 rounded-xl bg-white/5 hover:bg-accent hover:text-slate-950 hover:-translate-y-1 text-slate-300 transition-all"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-7 reveal-right">
+          <form id="public-contact-form" class="p-8 rounded-2xl glass-panel border border-white/10 space-y-6">
+            <div>
+              <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Your Name</label>
+              <input type="text" id="form-name" required class="w-full px-4 py-3 rounded-xl bg-brand-surface border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm transition-all" placeholder="e.g. Alex Vance">
+            </div>
+            <div>
+              <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Your Email</label>
+              <input type="email" id="form-email" required class="w-full px-4 py-3 rounded-xl bg-brand-surface border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm transition-all" placeholder="e.g. alex@example.com">
+            </div>
+            <div>
+              <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Message</label>
+              <textarea id="form-message" rows="4" required class="w-full px-4 py-3 rounded-xl bg-brand-surface border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm transition-all" placeholder="Tell me about your project..."></textarea>
+            </div>
+            <button type="submit" class="shine w-full py-4 rounded-xl bg-accent text-slate-950 font-bold text-sm hover:brightness-110 hover:-translate-y-0.5 shadow-accent transition-all flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-4 h-4"></i><span>Send Message</span>
+            </button>
+            <div id="form-status" class="hidden p-4 rounded-xl text-xs font-medium text-center"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-8 px-6 border-t border-white/5 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div id="footer-copyright-trigger" class="cursor-pointer select-none" title="Double click for Admin">
+        &copy; <span id="footer-year"></span> <span id="footer-brand-name">Arzan Showjal Antu</span>. All rights reserved.
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Crafted with HTML, Custom CSS &amp; JS</span>
+        <button id="footer-admin-trigger" class="text-slate-600 hover:text-slate-400 transition-colors p-1" title="System Gateway"><i data-lucide="terminal" class="w-3.5 h-3.5"></i></button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<!-- Back to top -->
+<button id="back-to-top" class="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-accent text-slate-950 shadow-accent opacity-0 pointer-events-none translate-y-4 transition-all duration-300 hover:brightness-110">
+  <i data-lucide="arrow-up" class="w-5 h-5"></i>
+</button>
+
+<!-- ================= AI ASSISTANT ================= -->
+<button id="ai-toggle" aria-label="Open AI Assistant" title="Ask me anything about Arzan!">
+  <i data-lucide="bot"></i>
+  <span id="ai-unread"></span>
+</button>
+
+<div id="ai-panel" role="dialog" aria-label="AI Assistant">
+  <!-- Header -->
+  <div class="ai-header">
+    <div class="ai-avatar">
+      <i data-lucide="bot"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2">
+        <h3 class="text-sm font-bold text-white font-display truncate">Antu AI</h3>
+        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/20">BETA</span>
+      </div>
+      <div class="ai-status">
+        <span class="dot"></span>
+        <span>Online · Replies instantly</span>
+      </div>
+    </div>
+    <button class="ai-close" id="ai-close" aria-label="Close chat">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="ai-messages" id="ai-messages"></div>
+
+  <!-- Suggestions -->
+  <div class="ai-suggestions" id="ai-suggestions"></div>
+
+  <!-- Input -->
+  <form class="ai-input-wrap" id="ai-form">
+    <input type="text" id="ai-input" placeholder="Ask about skills, projects, contact..." autocomplete="off" maxlength="300">
+    <button type="submit" class="ai-send" aria-label="Send message">
+      <i data-lucide="send"></i>
+    </button>
+  </form>
+</div>
+
+<!-- ================= PROJECT MODAL ================= -->
+<div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-brand-surface border border-white/10 rounded-2xl max-w-2xl w-full p-6 sm:p-8 relative shadow-2xl scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
+    <button id="modal-close-btn" class="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="modal-category" class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono uppercase mb-4">Category</div>
+    <h3 id="modal-title" class="text-2xl sm:text-3xl font-display font-bold text-white mb-2">Project Title</h3>
+    <p id="modal-tech" class="text-xs font-mono text-slate-400 mb-6">Tech Stack</p>
+    <div id="modal-banner" class="w-full h-48 sm:h-64 rounded-xl mb-6 bg-cover bg-center border border-white/5 flex items-center justify-center overflow-hidden">
+      <video id="modal-video-preview" class="w-full h-full object-cover hidden" autoplay loop muted playsinline><source id="modal-video-src" src="" type="video/mp4"></video>
+    </div>
+    <p id="modal-desc" class="text-slate-300 text-sm leading-relaxed mb-8">Detailed description of the project goes here.</p>
+    <div class="flex items-center gap-4">
+      <a id="modal-link" href="#" target="_blank" class="shine px-6 py-3 rounded-xl bg-accent text-slate-950 font-bold text-xs hover:brightness-110 shadow-accent transition-all inline-flex items-center gap-2">
+        <span>Launch Live Demo</span><i data-lucide="external-link" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= AUTH MODAL ================= -->
+<div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-brand-surface border border-white/10 rounded-2xl max-w-md w-full p-8 text-center relative shadow-2xl">
+    <button id="auth-close-btn" class="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div class="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4 text-accent"><i data-lucide="lock" class="w-6 h-6"></i></div>
+    <h3 class="text-xl font-display font-bold text-white mb-2">CMS Security Gateway</h3>
+    <p class="text-xs text-slate-400 mb-6">Enter Admin Password to access Portfolio CMS.<br><span class="text-accent font-mono">(Default PIN: 1234)</span></p>
+    <form id="auth-form" class="space-y-4">
+      <input type="password" id="auth-pin" placeholder="Enter PIN / Password" required class="w-full text-center tracking-widest text-lg font-mono px-4 py-3 rounded-xl bg-brand-bg border border-white/10 text-white focus:outline-none focus:border-accent">
+      <button type="submit" class="w-full py-3.5 rounded-xl bg-accent text-slate-950 font-bold text-xs hover:brightness-110 shadow-accent transition-all">Unlock Admin Dashboard</button>
+      <p id="auth-error" class="text-xs text-rose-500 hidden font-medium">Incorrect PIN code or Password.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ================= ADMIN PANEL ================= -->
+<div id="admin-panel" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 flex flex-col">
+  <div class="bg-brand-surface border-b border-white/10 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="p-2 rounded-lg bg-accent/10 text-accent"><i data-lucide="sliders" class="w-5 h-5"></i></div>
+      <div>
+        <h3 class="text-sm font-bold text-white font-display">Portfolio Content Management System</h3>
+        <p class="text-[11px] text-slate-400 font-mono">Logged in as Administrator</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="reset-cms-btn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition-all flex items-center gap-1.5">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Reset Defaults</span>
+      </button>
+      <button id="close-admin-btn" class="px-4 py-2 rounded-lg bg-accent text-slate-950 text-xs font-bold hover:brightness-110 transition-all flex items-center gap-1.5">
+        <i data-lucide="check-circle" class="w-4 h-4"></i><span>Save &amp; Exit</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+    <div class="w-full md:w-64 bg-brand-surface/50 border-r border-white/10 p-4 space-y-1 shrink-0 overflow-x-auto md:overflow-y-auto flex md:flex-col">
+      <button data-tab="profile" class="admin-tab-btn active w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all"><i data-lucide="user-check" class="w-4 h-4"></i><span>Personal Info</span></button>
+      <button data-tab="videos" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white"><i data-lucide="video" class="w-4 h-4"></i><span>Video Background</span></button>
+      <button data-tab="projects" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white"><i data-lucide="folder" class="w-4 h-4"></i><span>Projects Manager</span></button>
+      <button data-tab="skills" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white"><i data-lucide="cpu" class="w-4 h-4"></i><span>Skills Matrix</span></button>
+      <button data-tab="inbox" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center justify-between transition-all text-slate-400 hover:bg-white/5 hover:text-white">
+        <div class="flex items-center gap-3"><i data-lucide="inbox" class="w-4 h-4"></i><span>Inbox Messages</span></div>
+        <span id="unread-count-badge" class="px-2 py-0.5 rounded-full bg-accent text-slate-950 text-[10px] font-bold">0</span>
+      </button>
+      <button data-tab="theme" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white"><i data-lucide="palette" class="w-4 h-4"></i><span>Theme &amp; Accent</span></button>
+      <button data-tab="security" class="admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white"><i data-lucide="key" class="w-4 h-4"></i><span>Security &amp; Password</span></button>
+    </div>
+
+    <div class="flex-1 p-6 md:p-8 overflow-y-auto">
+      <!-- Tab 1 -->
+      <div id="tab-profile" class="admin-tab-content space-y-6">
+        <div class="border-b border-white/10 pb-4">
+          <h4 class="text-xl font-bold text-white font-display">Personal Information Editor</h4>
+          <p class="text-xs text-slate-400">Update full name, roles, biographic copy, contact info, and social links live.</p>
+        </div>
+        <form id="profile-editor-form" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Full Name</label><input type="text" id="prof-name" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Professional Title / Role</label><input type="text" id="prof-title" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          </div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Hero Tagline / Statement</label><textarea id="prof-tagline" rows="2" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></textarea></div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Detailed Bio / About Me Paragraph</label><textarea id="prof-bio" rows="4" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></textarea></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Email Address</label><input type="email" id="prof-email" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Phone Number</label><input type="text" id="prof-phone" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          </div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Location</label><input type="text" id="prof-location" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">GitHub Profile URL</label><input type="text" id="prof-github" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">LinkedIn Profile URL</label><input type="text" id="prof-linkedin" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Twitter/X Profile URL</label><input type="text" id="prof-twitter" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Instagram Profile URL</label><input type="text" id="prof-instagram" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs"></div>
+          </div>
+          <button type="submit" class="px-6 py-2.5 rounded-lg bg-accent text-slate-950 font-bold text-xs hover:brightness-110 transition-all">Save Personal Info Changes</button>
+        </form>
+      </div>
+
+      <!-- Tab 2 -->
+      <div id="tab-videos" class="admin-tab-content hidden space-y-6">
+        <div class="border-b border-white/10 pb-4">
+          <h4 class="text-xl font-bold text-white font-display">Hero Video Background Settings</h4>
+          <p class="text-xs text-slate-400">Configure background video URL, poster image, and playback behavior.</p>
+        </div>
+        <form id="hero-video-config-form" class="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Direct MP4 Background Video URL</label><input type="url" id="hero-vid-url" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Poster Image Fallback URL</label><input type="url" id="hero-vid-poster" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <button type="submit" class="px-5 py-2.5 rounded-lg bg-accent text-slate-950 font-bold text-xs hover:brightness-110 transition-all">Save Video Settings</button>
+        </form>
+      </div>
+
+      <!-- Tab 3 -->
+      <div id="tab-projects" class="admin-tab-content hidden space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+          <div>
+            <h4 class="text-xl font-bold text-white font-display">Manage Portfolio Works</h4>
+            <p class="text-xs text-slate-400">Add, edit, or delete frontend &amp; Java projects live.</p>
+          </div>
+          <button id="admin-add-project-btn" class="px-4 py-2 rounded-xl bg-accent text-slate-950 text-xs font-bold hover:brightness-110 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Add New Project</button>
+        </div>
+        <form id="project-editor-form" class="hidden p-6 rounded-2xl glass-panel border border-accent/30 space-y-4">
+          <h5 id="project-form-title" class="text-sm font-bold text-accent font-mono uppercase">Add New Project</h5>
+          <input type="hidden" id="edit-project-id">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Project Title</label><input type="text" id="proj-form-title" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Category Tag</label>
+              <select id="proj-form-category" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent">
+                <option value="Frontend">Frontend</option><option value="Web Apps">Web Apps</option><option value="UI/UX">UI/UX</option><option value="Java">Java</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Tech Stack Tags (Comma separated)</label><input type="text" id="proj-form-tech" placeholder="HTML5, CSS3, ES6 JS, Java" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Demo Link / Repo URL</label><input type="text" id="proj-form-link" placeholder="https://..." required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Gradient Banner Style</label><input type="text" id="proj-form-banner" placeholder="linear-gradient(135deg, #00f0ff 0%, #002b4d 100%)" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+            <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Preview Video URL (Optional)</label><input type="url" id="proj-form-video" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          </div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Description</label><textarea id="proj-form-desc" rows="3" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></textarea></div>
+          <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="px-5 py-2.5 rounded-lg bg-accent text-slate-950 font-bold text-xs hover:brightness-110">Save Project</button>
+            <button type="button" id="cancel-proj-editor" class="px-4 py-2.5 rounded-lg bg-white/5 text-slate-400 text-xs hover:text-white">Cancel</button>
+          </div>
+        </form>
+        <div id="admin-projects-list" class="space-y-4"></div>
+      </div>
+
+      <!-- Tab 4 -->
+      <div id="tab-skills" class="admin-tab-content hidden space-y-6">
+        <div class="border-b border-white/10 pb-4">
+          <h4 class="text-xl font-bold text-white font-display">Skills &amp; Tech Stack Matrix</h4>
+          <p class="text-xs text-slate-400">Adjust mastery percentages or add new core skills (HTML, CSS, JS, Java).</p>
+        </div>
+        <form id="add-skill-form" class="p-4 rounded-xl bg-brand-surface border border-white/10 flex flex-col sm:flex-row gap-3 items-end">
+          <div class="flex-1"><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Skill Name</label><input type="text" id="new-skill-name" placeholder="e.g. Java Backend Architecture" required class="w-full px-3 py-2 rounded-lg bg-brand-bg border border-white/10 text-white text-xs"></div>
+          <div class="w-full sm:w-32"><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Level (%)</label><input type="number" id="new-skill-level" min="1" max="100" placeholder="90" required class="w-full px-3 py-2 rounded-lg bg-brand-bg border border-white/10 text-white text-xs"></div>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-accent text-slate-950 font-bold text-xs h-9 hover:brightness-110">Add Skill</button>
+        </form>
+        <div id="admin-skills-list" class="space-y-3"></div>
+      </div>
+
+      <!-- Tab 5 -->
+      <div id="tab-inbox" class="admin-tab-content hidden space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+          <div>
+            <h4 class="text-xl font-bold text-white font-display">Contact Messages Inbox</h4>
+            <p class="text-xs text-slate-400">Messages sent through your public portfolio form.</p>
+          </div>
+          <button id="clear-inbox-btn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 text-xs hover:bg-rose-500/20">Clear All Messages</button>
+        </div>
+        <div id="admin-messages-list" class="space-y-4"></div>
+      </div>
+
+      <!-- Tab 6 -->
+      <div id="tab-theme" class="admin-tab-content hidden space-y-6">
+        <div class="border-b border-white/10 pb-4">
+          <h4 class="text-xl font-bold text-white font-display">Accent Lighting &amp; Theme</h4>
+          <p class="text-xs text-slate-400">Customize main portfolio accent color dynamically.</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <button data-color="#00f0ff" data-glow="rgba(0, 240, 255, 0.25)" data-dark="#00a8b3" class="theme-preset-btn p-4 rounded-xl bg-brand-surface border border-white/10 text-left hover:border-cyan-400 transition-all">
+            <div class="w-8 h-8 rounded-full bg-[#00f0ff] mb-2 shadow-[0_0_15px_#00f0ff]"></div>
+            <p class="text-xs font-bold text-white">Electric Cyan</p><p class="text-[10px] text-slate-400">Silvia Default</p>
+          </button>
+          <button data-color="#10b981" data-glow="rgba(16, 185, 129, 0.25)" data-dark="#059669" class="theme-preset-btn p-4 rounded-xl bg-brand-surface border border-white/10 text-left hover:border-emerald-400 transition-all">
+            <div class="w-8 h-8 rounded-full bg-[#10b981] mb-2 shadow-[0_0_15px_#10b981]"></div>
+            <p class="text-xs font-bold text-white">Neon Mint</p><p class="text-[10px] text-slate-400">Cyber Green</p>
+          </button>
+          <button data-color="#a855f7" data-glow="rgba(168, 85, 247, 0.25)" data-dark="#7e22ce" class="theme-preset-btn p-4 rounded-xl bg-brand-surface border border-white/10 text-left hover:border-purple-400 transition-all">
+            <div class="w-8 h-8 rounded-full bg-[#a855f7] mb-2 shadow-[0_0_15px_#a855f7]"></div>
+            <p class="text-xs font-bold text-white">Cyber Purple</p><p class="text-[10px] text-slate-400">Electric Violet</p>
+          </button>
+          <button data-color="#eab308" data-glow="rgba(234, 179, 8, 0.25)" data-dark="#ca8a04" class="theme-preset-btn p-4 rounded-xl bg-brand-surface border border-white/10 text-left hover:border-yellow-400 transition-all">
+            <div class="w-8 h-8 rounded-full bg-[#eab308] mb-2 shadow-[0_0_15px_#eab308]"></div>
+            <p class="text-xs font-bold text-white">Cyber Gold</p><p class="text-[10px] text-slate-400">Amber Glow</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 7 -->
+      <div id="tab-security" class="admin-tab-content hidden space-y-6">
+        <div class="border-b border-white/10 pb-4">
+          <h4 class="text-xl font-bold text-white font-display">Security Settings</h4>
+          <p class="text-xs text-slate-400">Update your Admin Password or PIN code for accessing the CMS.</p>
+        </div>
+        <form id="security-password-form" class="p-6 rounded-2xl glass-panel border border-white/10 space-y-4 max-w-lg">
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Current Password / PIN</label><input type="password" id="sec-current-pin" required class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">New Password / PIN</label><input type="password" id="sec-new-pin" required minlength="4" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <div><label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Confirm New Password / PIN</label><input type="password" id="sec-confirm-pin" required minlength="4" class="w-full px-3 py-2 rounded-lg bg-brand-surface border border-white/10 text-white text-xs focus:border-accent"></div>
+          <button type="submit" class="px-5 py-2.5 rounded-lg bg-accent text-slate-950 font-bold text-xs hover:brightness-110">Update Admin Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CORE SCRIPT ================= -->
+<script>
+/* ---------------- Default State (sourced from CV) ---------------- */
+const DEFAULT_DATA = {
+  adminPin: "1234",
+  profile: {
+    name: "Arzan Showjal Antu",
+    title: "— Frontend Developer & Software QA Engineer",
+    tagline: "CSE graduate building responsive, high-performance web interfaces with HTML, CSS & JavaScript — backed by Java fundamentals and a QA mindset.",
+    bio: "I'm Arzan Showjal Antu, a Computer Science & Engineering graduate from Uttara University (B.Sc. CSE, CGPA 3.03) based in Barishal, Bangladesh. I build responsive, accessible front-ends with HTML5, CSS3 and JavaScript, and I bring a quality-first mindset from formal Software Testing & QA training at Jagannath University. I'm also NSDA Level-3 certified in Web Design, with hands-on Java experience, graphic design skills, and over a year of teaching that sharpened my communication and mentoring abilities.",
+    email: "antuorjon@gmail.com",
+    phone: "+8801889-020763",
+    location: "Charmohisha, Barishal, Bangladesh",
+    github: "https://github.com",
+    linkedin: "https://linkedin.com",
+    twitter: "https://twitter.com",
+    instagram: "https://instagram.com"
+  },
+  heroVideo: {
+    url: "https://assets.mixkit.co/videos/preview/mixkit-developer-working-on-code-41551-large.mp4",
+    poster: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80"
+  },
+  theme: { accent: "#00f0ff", glow: "rgba(0, 240, 255, 0.25)", dark: "#00a8b3" },
+  skills: [
+    { id: "s1", name: "HTML5 & Semantic Markup", level: 92 },
+    { id: "s2", name: "CSS3, Animations & Responsive Layout", level: 90 },
+    { id: "s3", name: "JavaScript ES6+", level: 85 },
+    { id: "s4", name: "Software Testing & Quality Assurance", level: 85 },
+    { id: "s5", name: "Java & Object-Oriented Programming", level: 78 },
+    { id: "s6", name: "Graphic Design", level: 75 },
+    { id: "s7", name: "MS Word, Excel & PowerPoint", level: 88 },
+    { id: "s8", name: "Teamwork, Leadership & Communication", level: 90 }
+  ],
+  experience: [
+    { id: "e1", type: "work", role: "Assistant Teacher", org: "Uttara Model School & College", place: "Uttara, Dhaka", period: "Oct 2025 – Jan 2026", desc: "Delivered educational content and supported student development." },
+    { id: "e2", type: "work", role: "Assistant Teacher", org: "Light House Career College", place: "Uttara, Dhaka", period: "Jun 2024 – Sep 2025", desc: "Focused on student engagement and academic support." },
+    { id: "e3", type: "edu", role: "B.Sc. in Computer Science & Engineering", org: "Uttara University", place: "Uttara, Dhaka", period: "Jan 2022 – Feb 2026", desc: "CGPA 3.03 / 4.00" },
+    { id: "e4", type: "edu", role: "Higher Secondary Certificate — Science", org: "Mohazzem Hossain Ideal School & College", place: "Uttara, Dhaka", period: "Jul 2018 – Jul 2020", desc: "GPA 5.00 / 5.00" },
+    { id: "e5", type: "edu", role: "S.S.C. — Science", org: "Bangamata Sheikh Fazilatunnesa Mujib Govt. Secondary School", place: "Uttara, Dhaka", period: "Jan 2016 – Mar 2018", desc: "GPA 4.72 / 5.00" }
+  ],
+  certificates: [
+    { id: "c1", name: "Software Testing", issuer: "Dept. of Computer Science & Engineering, Jagannath University", period: "Sep 2024 – Feb 2025" },
+    { id: "c2", name: "Web Design — Level 3", issuer: "NSDA (National Skills Development Authority)", period: "Completed Aug 2026" }
+  ],
+  projects: [
+    { id: "p1", title: "Silvia Motion Dark Showcase", category: "Frontend", tech: "HTML5, CSS3, JavaScript, Canvas", link: "https://github.com", banner: "linear-gradient(135deg, #00f0ff 0%, #002b4d 100%)", video: "https://assets.mixkit.co/videos/preview/mixkit-developer-working-on-code-41551-large.mp4", desc: "A sleek dark designer showcase featuring smooth particle canvas backgrounds, custom cursor tracking, and video background capabilities." },
+    { id: "p2", title: "Interactive Modular UI System", category: "UI/UX", tech: "JavaScript ES6+, Modern CSS, Tailwind", link: "https://github.com", banner: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #00f0ff 100%)", video: "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-in-an-office-41552-large.mp4", desc: "A comprehensive frontend UI component library with glassmorphic cards, modal preview popups, dynamic filters, and real-time customizable accent lighting." },
+    { id: "p3", title: "Java Full-Stack Application", category: "Java", tech: "Java, Object-Oriented Logic, REST APIs", link: "https://github.com", banner: "linear-gradient(135deg, #180033 0%, #a855f7 100%)", video: "", desc: "A full-stack software application utilizing Java backends and structured JavaScript client interfaces for real-time web processing." },
+    { id: "p4", title: "QA Test Case & Bug Report Suite", category: "Web Apps", tech: "Manual Testing, Test Cases, Bug Reporting", link: "https://github.com", banner: "linear-gradient(135deg, #064e3b 0%, #10b981 100%)", video: "", desc: "A structured quality-assurance portfolio containing written test cases, defect reports, and QA documentation produced during formal Software Testing training." }
+  ],
+  messages: [
+    { id: "m1", name: "Sophia Vance", email: "sophia@designstudio.com", message: "Hi Arzan, loved your frontend video background showcase! Are you available for a UI design & development project?", date: "Sep 2026", read: false }
+  ]
+};
+
+/* ---------------- State load + migration ---------------- */
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem('arzan_portfolio_state')) || {}; } catch (e) { saved = {}; }
+
+let state = {
+  ...DEFAULT_DATA,
+  ...saved,
+  profile:   { ...DEFAULT_DATA.profile,   ...(saved.profile   || {}) },
+  heroVideo: { ...DEFAULT_DATA.heroVideo, ...(saved.heroVideo || {}) },
+  theme:     { ...DEFAULT_DATA.theme,     ...(saved.theme     || {}) }
+};
+
+if (!Array.isArray(state.experience)   || !state.experience.length)   state.experience   = DEFAULT_DATA.experience;
+if (!Array.isArray(state.certificates) || !state.certificates.length) state.certificates = DEFAULT_DATA.certificates;
+if (!Array.isArray(state.skills)       || !state.skills.length)       state.skills       = DEFAULT_DATA.skills;
+if (!Array.isArray(state.projects))                                   state.projects     = DEFAULT_DATA.projects;
+if (!Array.isArray(state.messages))                                   state.messages     = DEFAULT_DATA.messages;
+if (!state.adminPin) state.adminPin = "1234";
+
+function saveState() {
+  localStorage.setItem('arzan_portfolio_state', JSON.stringify(state));
+  renderAll();
+}
+
+/* ---------------- Toast ---------------- */
+function showToast(msg, type = "success") {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `px-4 py-3 rounded-xl text-xs font-semibold glass-panel border flex items-center gap-2 shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 ${type === 'error' ? 'border-rose-500/40 text-rose-400' : 'border-emerald-500/40 text-emerald-400'}`;
+  toast.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle'}" class="w-4 h-4"></i><span>${msg}</span>`;
+  container.appendChild(toast);
+  lucide.createIcons();
+  requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+  setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function applyTheme() {
+  document.documentElement.style.setProperty('--color-accent', state.theme.accent);
+  document.documentElement.style.setProperty('--color-accent-glow', state.theme.glow);
+  document.documentElement.style.setProperty('--color-accent-dark', state.theme.dark);
+}
+
+function renderProfile() {
+  const p = state.profile;
+  document.getElementById('nav-brand-name').textContent = p.name;
+  document.getElementById('nav-initials').textContent = p.name.charAt(0);
+  document.getElementById('hero-display-name').textContent = p.name;
+  document.getElementById('hero-display-title').textContent = p.title || "— Frontend Developer & Software QA Engineer";
+  document.getElementById('hero-display-tagline').textContent = p.tagline;
+  document.getElementById('about-display-text').innerHTML = `<p>${p.bio}</p>`;
+  document.getElementById('about-card-role').textContent = (p.title || "Frontend Developer").replace('—', '').trim();
+  document.getElementById('contact-email-display').textContent = p.email;
+  document.getElementById('contact-email-display').href = `mailto:${p.email}`;
+
+  const phoneEl = document.getElementById('contact-phone-display');
+  if (phoneEl) {
+    phoneEl.textContent = p.phone || "";
+    phoneEl.href = 'tel:' + String(p.phone || '').replace(/[^+\d]/g, '');
+  }
+  const locEl = document.getElementById('contact-location-display');
+  if (locEl) locEl.textContent = p.location || "Global / Remote Available";
+
+  document.getElementById('footer-brand-name').textContent = p.name;
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+  document.getElementById('social-github').href = p.github || "#";
+  document.getElementById('social-linkedin').href = p.linkedin || "#";
+  document.getElementById('social-twitter').href = p.twitter || "#";
+  document.getElementById('social-instagram').href = p.instagram || "#";
+
+  if (state.heroVideo) {
+    const vid = document.getElementById('hero-bg-video');
+    const src = document.getElementById('hero-bg-video-src');
+    if (src.getAttribute('src') !== state.heroVideo.url) {
+      src.setAttribute('src', state.heroVideo.url);
+      vid.load(); vid.play().catch(() => {});
+    }
+    if (state.heroVideo.poster) vid.poster = state.heroVideo.poster;
+  }
+}
+
+function renderProjects(filter = 'all') {
+  const grid = document.getElementById('projects-grid');
+  grid.innerHTML = '';
+  const filtered = filter === 'all' ? state.projects : state.projects.filter(p => p.category.toLowerCase() === filter.toLowerCase());
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-3 text-center text-slate-500 py-12">No projects found in this category.</div>`;
+    return;
+  }
+  filtered.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = "card-in tilt-card glass-card rounded-2xl p-6 flex flex-col justify-between group cursor-pointer border-white/5 hover:border-accent";
+    card.style.animationDelay = (i * 90) + 'ms';
+    card.onclick = () => openProjectModal(p);
+    const videoMarkup = p.video ? `<video class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500" autoplay loop muted playsinline><source src="${p.video}" type="video/mp4"></video>` : '';
+    card.innerHTML = `
+      <div>
+        <div class="h-44 rounded-xl mb-6 flex items-center justify-center p-6 text-slate-300 font-mono text-xs overflow-hidden relative" style="background: ${p.banner}">
+          ${videoMarkup}
+          <div class="absolute inset-0 bg-black/25 group-hover:bg-transparent transition-colors duration-500"></div>
+          <span class="relative z-10 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 group-hover:scale-105 transition-transform">${p.tech}</span>
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-accent">${p.category}</span>
+        </div>
+        <h3 class="text-xl font-bold font-display text-white group-hover:text-accent transition-colors mb-2">${p.title}</h3>
+        <p class="text-slate-400 text-xs line-clamp-2 leading-relaxed mb-6">${p.desc}</p>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-semibold text-accent group-hover:translate-x-1.5 transition-transform">
+        <span>View Case Study</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </div>`;
+    grid.appendChild(card);
+  });
+  lucide.createIcons();
+  attachTilt();
+}
+
+function attachTilt() {
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    if (card.dataset.tiltBound) return;
+    card.dataset.tiltBound = '1';
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `perspective(900px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateY(-6px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+}
+
+function renderSkills() {
+  const list = document.getElementById('skills-list');
+  list.innerHTML = '';
+  state.skills.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = "space-y-2 reveal-left";
+    item.style.transitionDelay = (i * 90) + 'ms';
+    item.innerHTML = `
+      <div class="flex justify-between items-center text-xs font-mono">
+        <span class="text-slate-200 font-medium">${s.name}</span>
+        <span class="text-accent">${s.level}%</span>
+      </div>
+      <div class="w-full h-2 rounded-full bg-brand-card overflow-hidden border border-white/5">
+        <div class="skill-bar-fill h-full rounded-full" data-level="${s.level}"></div>
+      </div>`;
+    list.appendChild(item);
+  });
+  const bars = list.querySelectorAll('.skill-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        requestAnimationFrame(() => { entry.target.style.width = entry.target.dataset.level + '%'; });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.25 });
+  bars.forEach(b => barObserver.observe(b));
+  list.querySelectorAll('.reveal-left').forEach(el => revealObserver.observe(el));
+}
+
+/* ---------------- Experience / Education / Certificates ---------------- */
+function renderExperience() {
+  const expEl = document.getElementById('experience-list');
+  const eduEl = document.getElementById('education-list');
+  const certEl = document.getElementById('certificates-list');
+  if (!expEl || !eduEl || !certEl) return;
+
+  const items = state.experience || [];
+  const work = items.filter(i => i.type === 'work');
+  const edu  = items.filter(i => i.type === 'edu');
+
+  const itemHTML = (i) => `
+    <div class="relative">
+      <span class="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent-glow)] ring-4 ring-brand-bg"></span>
+      <div class="glass-card rounded-2xl p-5 border-white/5">
+        <span class="text-[10px] font-mono text-accent">${i.period}</span>
+        <h4 class="font-display font-bold text-white text-base mt-1">${i.role}</h4>
+        <p class="text-xs text-slate-300 mt-0.5">${i.org}</p>
+        ${i.place ? `<p class="text-[11px] text-slate-500 font-mono mt-0.5">${i.place}</p>` : ''}
+        ${i.desc ? `<p class="text-xs text-slate-400 mt-3 leading-relaxed">${i.desc}</p>` : ''}
+      </div>
+    </div>`;
+
+  expEl.innerHTML = work.map(itemHTML).join('') || '<p class="text-xs text-slate-500">No experience entries.</p>';
+  eduEl.innerHTML  = edu.map(itemHTML).join('')  || '<p class="text-xs text-slate-500">No education entries.</p>';
+
+  certEl.innerHTML = (state.certificates || []).map(c => `
+    <div class="glass-card rounded-2xl p-5 flex items-start gap-4 border-white/5">
+      <div class="p-3 rounded-xl bg-accent/10 text-accent shrink-0"><i data-lucide="award" class="w-5 h-5"></i></div>
+      <div>
+        <h4 class="font-bold text-white text-sm">${c.name}</h4>
+        <p class="text-[11px] text-slate-400 mt-1">${c.issuer}</p>
+        <p class="text-[10px] font-mono text-accent mt-1">${c.period}</p>
+      </div>
+    </div>`).join('');
+
+  lucide.createIcons();
+}
+
+function renderAdminProjects() {
+  const list = document.getElementById('admin-projects-list');
+  list.innerHTML = '';
+  state.projects.forEach(p => {
+    const item = document.createElement('div');
+    item.className = "p-4 rounded-xl bg-brand-surface border border-white/10 flex items-center justify-between gap-4 hover:border-accent/40 transition-colors";
+    item.innerHTML = `
+      <div>
+        <div class="flex items-center gap-2">
+          <h5 class="font-bold text-white text-sm">${p.title}</h5>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/5 text-accent uppercase">${p.category}</span>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">${p.tech}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="editProject('${p.id}')" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-accent transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+        <button onclick="deleteProject('${p.id}')" class="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>`;
+    list.appendChild(item);
+  });
+  lucide.createIcons();
+}
+
+function renderAdminSkills() {
+  const list = document.getElementById('admin-skills-list');
+  list.innerHTML = '';
+  state.skills.forEach(s => {
+    const item = document.createElement('div');
+    item.className = "p-3 rounded-xl bg-brand-surface border border-white/10 flex items-center justify-between gap-4";
+    item.innerHTML = `
+      <div class="flex items-center gap-3 flex-1">
+        <input type="text" value="${s.name}" onchange="updateSkillName('${s.id}', this.value)" class="bg-brand-bg px-3 py-1.5 rounded-lg border border-white/10 text-xs text-white flex-1">
+        <input type="number" value="${s.level}" onchange="updateSkillLevel('${s.id}', this.value)" class="bg-brand-bg px-3 py-1.5 rounded-lg border border-white/10 text-xs text-white w-20">
+      </div>
+      <button onclick="deleteSkill('${s.id}')" class="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+    list.appendChild(item);
+  });
+  lucide.createIcons();
+}
+
+function renderAdminInbox() {
+  const list = document.getElementById('admin-messages-list');
+  const badge = document.getElementById('unread-count-badge');
+  list.innerHTML = '';
+  const unreadCount = state.messages.filter(m => !m.read).length;
+  badge.textContent = unreadCount;
+  if (state.messages.length === 0) {
+    list.innerHTML = `<div class="text-center text-slate-500 py-8 text-xs">No contact messages received yet.</div>`;
+    return;
+  }
+  state.messages.forEach(m => {
+    const card = document.createElement('div');
+    card.className = `p-4 rounded-xl border ${m.read ? 'bg-brand-surface/40 border-white/5' : 'bg-brand-surface border-accent/40'} space-y-2`;
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-white text-sm">${m.name}</span>
+          <span class="text-xs text-slate-400">&lt;${m.email}&gt;</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-slate-500 font-mono">${m.date}</span>
+          <button onclick="toggleReadMessage('${m.id}')" class="text-xs text-accent hover:underline">${m.read ? 'Mark Unread' : 'Mark Read'}</button>
+          <button onclick="deleteMessage('${m.id}')" class="text-xs text-rose-400 hover:underline">Delete</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">${m.message}</p>`;
+    list.appendChild(card);
+  });
+}
+
+function populateForms() {
+  const p = state.profile;
+  document.getElementById('prof-name').value = p.name;
+  document.getElementById('prof-title').value = p.title || "— Frontend Developer & Software QA Engineer";
+  document.getElementById('prof-email').value = p.email;
+  document.getElementById('prof-phone').value = p.phone || '';
+  document.getElementById('prof-location').value = p.location || '';
+  document.getElementById('prof-tagline').value = p.tagline;
+  document.getElementById('prof-bio').value = p.bio;
+  document.getElementById('prof-github').value = p.github || '';
+  document.getElementById('prof-linkedin').value = p.linkedin || '';
+  document.getElementById('prof-twitter').value = p.twitter || '';
+  document.getElementById('prof-instagram').value = p.instagram || '';
+  if (state.heroVideo) {
+    document.getElementById('hero-vid-url').value = state.heroVideo.url || '';
+    document.getElementById('hero-vid-poster').value = state.heroVideo.poster || '';
+  }
+}
+
+function renderAll() {
+  applyTheme();
+  renderProfile();
+  renderProjects();
+  renderSkills();
+  renderExperience();
+  renderAdminProjects();
+  renderAdminSkills();
+  renderAdminInbox();
+  populateForms();
+}
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('in'); revealObserver.unobserve(entry.target); }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+function observeReveals() {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-flip')
+    .forEach(el => revealObserver.observe(el));
+}
+
+function animateCounters() {
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const duration = 1700;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * eased).toFixed(decimals) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      counterObserver.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+}
+
+function openProjectModal(p) {
+  document.getElementById('modal-title').textContent = p.title;
+  document.getElementById('modal-category').textContent = p.category;
+  document.getElementById('modal-tech').textContent = p.tech;
+  document.getElementById('modal-desc').textContent = p.desc;
+  document.getElementById('modal-banner').style.background = p.banner;
+  document.getElementById('modal-link').href = p.link;
+  const video = document.getElementById('modal-video-preview');
+  const src = document.getElementById('modal-video-src');
+  if (p.video) {
+    src.setAttribute('src', p.video);
+    video.load(); video.classList.remove('hidden'); video.play().catch(() => {});
+  } else { video.pause(); video.classList.add('hidden'); }
+  const modal = document.getElementById('project-modal');
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  modal.firstElementChild.classList.remove('scale-95');
+}
+
+document.getElementById('modal-close-btn').onclick = () => {
+  const modal = document.getElementById('project-modal');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  modal.firstElementChild.classList.add('scale-95');
+  document.getElementById('modal-video-preview').pause();
+};
+
+document.getElementById('project-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'project-modal') document.getElementById('modal-close-btn').click();
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.className = "filter-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all";
+    });
+    e.target.className = "filter-btn px-4 py-2 rounded-lg text-xs font-medium transition-all bg-accent text-slate-950";
+    renderProjects(e.target.dataset.filter);
+  });
+});
+
+document.getElementById('public-contact-form').onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById('form-name').value;
+  const email = document.getElementById('form-email').value;
+  const message = document.getElementById('form-message').value;
+  state.messages.unshift({ id: 'm_' + Date.now(), name, email, message, date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), read: false });
+  saveState();
+  const status = document.getElementById('form-status');
+  status.className = "p-4 rounded-xl text-xs font-medium text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+  status.textContent = "Thank you! Your message has been sent to Arzan's Inbox.";
+  status.classList.remove('hidden');
+  e.target.reset();
+  setTimeout(() => status.classList.add('hidden'), 4000);
+};
+
+const authModal = document.getElementById('auth-modal');
+const adminPanel = document.getElementById('admin-panel');
+
+function openAdminAuth() {
+  authModal.classList.remove('opacity-0', 'pointer-events-none');
+  setTimeout(() => document.getElementById('auth-pin').focus(), 80);
+}
+
+document.getElementById('nav-brand-logo').addEventListener('dblclick', (e) => { e.preventDefault(); openAdminAuth(); showToast("Secret Admin Gateway Unlocked"); });
+document.getElementById('footer-copyright-trigger').addEventListener('dblclick', (e) => { e.preventDefault(); openAdminAuth(); showToast("Secret Admin Gateway Unlocked"); });
+document.getElementById('footer-admin-trigger').onclick = () => openAdminAuth();
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+    if (!['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault(); openAdminAuth(); showToast("Admin Key Combination Activated");
+    }
+  }
+});
+
+function checkHashAdmin() { if (window.location.hash === '#admin') openAdminAuth(); }
+window.addEventListener('hashchange', checkHashAdmin);
+checkHashAdmin();
+
+document.getElementById('auth-close-btn').onclick = () => { authModal.classList.add('opacity-0', 'pointer-events-none'); };
+
+document.getElementById('auth-form').onsubmit = (e) => {
+  e.preventDefault();
+  const pinInput = document.getElementById('auth-pin').value;
+  if (pinInput === state.adminPin) {
+    authModal.classList.add('opacity-0', 'pointer-events-none');
+    document.getElementById('auth-pin').value = '';
+    document.getElementById('auth-error').classList.add('hidden');
+    adminPanel.classList.remove('opacity-0', 'pointer-events-none');
+    showToast("Welcome Administrator");
+  } else {
+    document.getElementById('auth-error').classList.remove('hidden');
+  }
+};
+
+document.getElementById('close-admin-btn').onclick = () => {
+  adminPanel.classList.add('opacity-0', 'pointer-events-none');
+  if (window.location.hash === '#admin') history.pushState("", document.title, window.location.pathname + window.location.search);
+};
+
+document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    const targetTab = btn.dataset.tab;
+    document.querySelectorAll('.admin-tab-btn').forEach(b => {
+      b.className = "admin-tab-btn w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all text-slate-400 hover:bg-white/5 hover:text-white";
+    });
+    btn.className = "admin-tab-btn active w-full px-4 py-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all";
+    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+  };
+});
+
+document.getElementById('profile-editor-form').onsubmit = (e) => {
+  e.preventDefault();
+  state.profile.name = document.getElementById('prof-name').value;
+  state.profile.title = document.getElementById('prof-title').value;
+  state.profile.email = document.getElementById('prof-email').value;
+  state.profile.phone = document.getElementById('prof-phone').value;
+  state.profile.location = document.getElementById('prof-location').value;
+  state.profile.tagline = document.getElementById('prof-tagline').value;
+  state.profile.bio = document.getElementById('prof-bio').value;
+  state.profile.github = document.getElementById('prof-github').value;
+  state.profile.linkedin = document.getElementById('prof-linkedin').value;
+  state.profile.twitter = document.getElementById('prof-twitter').value;
+  state.profile.instagram = document.getElementById('prof-instagram').value;
+  saveState();
+  showToast("Personal information updated successfully!");
+};
+
+document.getElementById('hero-video-config-form').onsubmit = (e) => {
+  e.preventDefault();
+  state.heroVideo = { url: document.getElementById('hero-vid-url').value, poster: document.getElementById('hero-vid-poster').value };
+  saveState();
+  showToast("Hero video settings updated");
+};
+
+const projectEditorForm = document.getElementById('project-editor-form');
+document.getElementById('admin-add-project-btn').onclick = () => {
+  document.getElementById('edit-project-id').value = '';
+  projectEditorForm.reset();
+  document.getElementById('project-form-title').textContent = "Add New Project";
+  projectEditorForm.classList.remove('hidden');
+  projectEditorForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+document.getElementById('cancel-proj-editor').onclick = () => { projectEditorForm.classList.add('hidden'); };
+
+projectEditorForm.onsubmit = (e) => {
+  e.preventDefault();
+  const editId = document.getElementById('edit-project-id').value;
+  const title = document.getElementById('proj-form-title').value;
+  const category = document.getElementById('proj-form-category').value;
+  const tech = document.getElementById('proj-form-tech').value;
+  const link = document.getElementById('proj-form-link').value;
+  const banner = document.getElementById('proj-form-banner').value || "linear-gradient(135deg, #00f0ff 0%, #002b4d 100%)";
+  const video = document.getElementById('proj-form-video').value || "";
+  const desc = document.getElementById('proj-form-desc').value;
+  if (editId) {
+    const index = state.projects.findIndex(p => p.id === editId);
+    if (index !== -1) state.projects[index] = { id: editId, title, category, tech, link, banner, video, desc };
+  } else {
+    state.projects.unshift({ id: 'p_' + Date.now(), title, category, tech, link, banner, video, desc });
+  }
+  saveState();
+  projectEditorForm.classList.add('hidden');
+  showToast("Project saved successfully");
+};
+
+function editProject(id) {
+  const p = state.projects.find(proj => proj.id === id);
+  if (!p) return;
+  document.getElementById('edit-project-id').value = p.id;
+  document.getElementById('proj-form-title').value = p.title;
+  document.getElementById('proj-form-category').value = p.category;
+  document.getElementById('proj-form-tech').value = p.tech;
+  document.getElementById('proj-form-link').value = p.link;
+  document.getElementById('proj-form-banner').value = p.banner;
+  document.getElementById('proj-form-video').value = p.video || '';
+  document.getElementById('proj-form-desc').value = p.desc;
+  document.getElementById('project-form-title').textContent = "Edit Project";
+  projectEditorForm.classList.remove('hidden');
+  projectEditorForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function deleteProject(id) { state.projects = state.projects.filter(p => p.id !== id); saveState(); showToast("Project deleted", "error"); }
+
+document.getElementById('add-skill-form').onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById('new-skill-name').value;
+  const level = parseInt(document.getElementById('new-skill-level').value);
+  state.skills.push({ id: 's_' + Date.now(), name, level });
+  saveState();
+  e.target.reset();
+  showToast("New skill added");
+};
+
+function updateSkillName(id, val) { const s = state.skills.find(sk => sk.id === id); if (s) { s.name = val; saveState(); showToast("Skill updated"); } }
+function updateSkillLevel(id, val) { const s = state.skills.find(sk => sk.id === id); if (s) { s.level = parseInt(val) || 0; saveState(); showToast("Level updated"); } }
+function deleteSkill(id) { state.skills = state.skills.filter(s => s.id !== id); saveState(); showToast("Skill removed", "error"); }
+function toggleReadMessage(id) { const m = state.messages.find(msg => msg.id === id); if (m) { m.read = !m.read; saveState(); } }
+function deleteMessage(id) { state.messages = state.messages.filter(m => m.id !== id); saveState(); showToast("Message deleted", "error"); }
+
+document.getElementById('clear-inbox-btn').onclick = () => { state.messages = []; saveState(); showToast("Inbox cleared", "error"); };
+
+document.getElementById('security-password-form').onsubmit = (e) => {
+  e.preventDefault();
+  const currentPin = document.getElementById('sec-current-pin').value;
+  const newPin = document.getElementById('sec-new-pin').value;
+  const confirmPin = document.getElementById('sec-confirm-pin').value;
+  if (currentPin !== state.adminPin) { showToast("Current password is incorrect", "error"); return; }
+  if (newPin !== confirmPin) { showToast("New passwords do not match", "error"); return; }
+  state.adminPin = newPin;
+  saveState();
+  e.target.reset();
+  showToast("Admin Password updated successfully!");
+};
+
+document.querySelectorAll('.theme-preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    state.theme.accent = btn.dataset.color;
+    state.theme.glow = btn.dataset.glow;
+    state.theme.dark = btn.dataset.dark;
+    saveState();
+    showToast("Theme preset applied");
+  };
+});
+
+document.getElementById('reset-cms-btn').onclick = () => {
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveState();
+  showToast("Restored system defaults");
+};
+
+/* ---------------- Testimonial Slider ---------------- */
+(function initSlider() {
+  const track = document.getElementById('testimonial-track');
+  if (!track) return;
+  const slides = track.children.length;
+  const dotsWrap = document.getElementById('t-dots');
+  let index = 0;
+  let autoTimer;
+  for (let i = 0; i < slides; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300';
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.onclick = () => { goTo(i); restartAuto(); };
+    dotsWrap.appendChild(dot);
+  }
+  function updateDots() {
+    [...dotsWrap.children].forEach((d, i) => {
+      d.className = i === index
+        ? 'w-7 h-2.5 rounded-full bg-accent transition-all duration-300'
+        : 'w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-white/40 transition-all duration-300';
+    });
+  }
+  function goTo(i) { index = (i + slides) % slides; track.style.transform = `translateX(-${index * 100}%)`; updateDots(); }
+  function next() { goTo(index + 1); }
+  function prev() { goTo(index - 1); }
+  function restartAuto() { clearInterval(autoTimer); autoTimer = setInterval(next, 5500); }
+  document.getElementById('t-next').onclick = () => { next(); restartAuto(); };
+  document.getElementById('t-prev').onclick = () => { prev(); restartAuto(); };
+  const wrap = track.parentElement;
+  wrap.addEventListener('mouseenter', () => clearInterval(autoTimer));
+  wrap.addEventListener('mouseleave', restartAuto);
+  updateDots();
+  restartAuto();
+})();
+
+/* ---------------- Custom Cursor ---------------- */
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', (e) => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+function bindCursorHovers() {
+  document.querySelectorAll('a, button, .glass-card, .flip-card, .tilt-card').forEach(el => {
+    if (el.dataset.cursorBound) return;
+    el.dataset.cursorBound = '1';
+    el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
+  });
+}
+
+/* ---------------- Scroll Progress ---------------- */
+const progressBar = document.getElementById('scroll-progress');
+const backToTop = document.getElementById('back-to-top');
+
+function onScroll() {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = total > 0 ? (scrolled / total) * 100 : 0;
+  progressBar.style.width = pct + '%';
+  if (scrolled > 500) backToTop.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+  else backToTop.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+backToTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+/* ---------------- Particle Canvas ---------------- */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { dpr = Math.min(window.devicePixelRatio || 1, 2); resizeCanvas(); });
+resizeCanvas();
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * window.innerWidth;
+    this.y = Math.random() * window.innerHeight;
+    this.vx = (Math.random() - 0.5) * 0.38;
+    this.vy = (Math.random() - 0.5) * 0.38;
+    this.radius = Math.random() * 1.5 + 0.5;
+    this.alpha = Math.random() * 0.4 + 0.1;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > window.innerWidth) this.vx *= -1;
+    if (this.y < 0 || this.y > window.innerHeight) this.vy *= -1;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = state.theme.accent;
+    ctx.globalAlpha = this.alpha;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+const PARTICLE_COUNT = window.innerWidth < 768 ? 22 : 45;
+for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+let lastFrame = 0;
+function animateParticles(now) {
+  requestAnimationFrame(animateParticles);
+  if (now - lastFrame < 1000 / 45) return;
+  lastFrame = now;
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  const linkDist = 120;
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    p.update(); p.draw();
+    for (let j = i + 1; j < particles.length; j++) {
+      const q = particles[j];
+      const dx = p.x - q.x;
+      const dy = p.y - q.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < linkDist) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.strokeStyle = state.theme.accent;
+        ctx.globalAlpha = (1 - dist / linkDist) * 0.14;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+}
+
+/* ---------------- Header scroll ---------------- */
+const header = document.querySelector('header');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 30) header.classList.add('shadow-2xl');
+  else header.classList.remove('shadow-2xl');
+}, { passive: true });
+
+/* ---------------- Smooth anchors ---------------- */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const id = link.getAttribute('href');
+    if (id.length < 2) return;
+    const target = document.querySelector(id);
+    if (!target) return;
+    e.preventDefault();
+    const offset = 80;
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+
+/* ================================================================
+   AI ASSISTANT — Knowledge-base driven conversational agent
+   ================================================================ */
+const AI = (() => {
+  const panel = document.getElementById('ai-panel');
+  const toggle = document.getElementById('ai-toggle');
+  const closeBtn = document.getElementById('ai-close');
+  const messagesEl = document.getElementById('ai-messages');
+  const suggestionsEl = document.getElementById('ai-suggestions');
+  const form = document.getElementById('ai-form');
+  const input = document.getElementById('ai-input');
+  const unreadDot = document.getElementById('ai-unread');
+
+  let isOpen = false;
+  let hasGreeted = false;
+  let isTyping = false;
+
+  /* ---------- Knowledge Base ---------- */
+  const SUGGESTIONS = [
+    "What are your skills?",
+    "Show me your projects",
+    "What's your education?",
+    "Are you available for hire?",
+    "How can I contact you?",
+    "Tell me about your certifications"
+  ];
+
+  function getRandom(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+  function formatSkills() {
+    return state.skills
+      .map(s => `• <strong>${s.name}</strong> — ${s.level}%`)
+      .join('<br>');
+  }
+
+  function formatProjects() {
+    return state.projects
+      .map(p => `• <strong>${p.title}</strong> <span style="opacity:.7">(${p.category})</span><br><span style="opacity:.75;font-size:11.5px">${p.tech}</span>`)
+      .join('<br><br>');
+  }
+
+  function formatWork() {
+    const list = (state.experience || []).filter(i => i.type === 'work');
+    if (!list.length) return null;
+    return list.map(i =>
+      `• <strong>${i.role}</strong><br><span style="opacity:.75;font-size:11.5px">${i.org} · ${i.place}<br>${i.period}</span>`
+    ).join('<br><br>');
+  }
+
+  function formatEdu() {
+    const list = (state.experience || []).filter(i => i.type === 'edu');
+    if (!list.length) return null;
+    return list.map(i =>
+      `• <strong>${i.role}</strong><br><span style="opacity:.75;font-size:11.5px">${i.org}<br>${i.period}${i.desc ? ' · ' + i.desc : ''}</span>`
+    ).join('<br><br>');
+  }
+
+  function formatCerts() {
+    const list = state.certificates || [];
+    if (!list.length) return null;
+    return list.map(c =>
+      `• <strong>${c.name}</strong><br><span style="opacity:.75;font-size:11.5px">${c.issuer} · ${c.period}</span>`
+    ).join('<br><br>');
+  }
+
+  function projectsByCategory(cat) {
+    const list = state.projects.filter(p => p.category.toLowerCase().includes(cat.toLowerCase()));
+    if (!list.length) return null;
+    return list.map(p => `• <strong>${p.title}</strong><br><span style="opacity:.75;font-size:11.5px">${p.tech}</span>`).join('<br><br>');
+  }
+
+  /* ---------- Intent matching ---------- */
+  function getResponse(raw) {
+    const q = raw.toLowerCase().trim();
+    const p = state.profile;
+    const first = p.name.split(' ')[0];
+
+    // Greetings
+    if (/^(hi|hello|hey|yo|hiya|howdy|sup|greetings|good (morning|afternoon|evening))\b/.test(q) || q === "hi") {
+      return getRandom([
+        `Hey there! 👋 I'm <strong>Antu AI</strong>, ${first}'s assistant. Ask me about his <strong>skills</strong>, <strong>projects</strong>, <strong>education</strong>, or how to <strong>get in touch</strong>.`,
+        `Hello! 👋 Great to see you here. I can tell you about ${first}'s work, tech stack, qualifications, and availability. What would you like to know?`,
+        `Hi! I'm here to help you explore ${first}'s portfolio. Try asking about his <strong>projects</strong>, <strong>skills</strong>, or <strong>education</strong>!`
+      ]);
+    }
+
+    // Thanks
+    if (/thank|thanks|thx|appreciate|cheers/.test(q)) {
+      return getRandom([
+        "You're very welcome! 😊 Anything else you'd like to know?",
+        "Happy to help! Feel free to ask anything else about " + first + ".",
+        "Anytime! 🚀 Let me know if you want to explore more."
+      ]);
+    }
+
+    // Bye
+    if (/bye|goodbye|see you|later|cya/.test(q)) {
+      return `Goodbye! 👋 Feel free to reach out anytime at <strong>${p.email}</strong>. Have a great day!`;
+    }
+
+    // Certifications (check before generic "training/skills")
+    if (/certificat|nsda|jagannath|licen[cs]e|credential/.test(q)) {
+      const c = formatCerts();
+      return c
+        ? `Here are <strong>${first}'s</strong> certifications:<br><br>${c}<br><br>Want the full <a href="#experience">timeline</a>?`
+        : `No certifications listed yet — but check the <a href="#experience">experience section</a> for the full story.`;
+    }
+
+    // Work experience
+    if (/experience|work history|job|employ|teacher|teaching|worked|career/.test(q)) {
+      const w = formatWork();
+      return w
+        ? `<strong>${first}'s</strong> professional experience:<br><br>${w}<br><br>He spent that time sharpening communication, leadership and mentoring skills — all of which carry into his development work.`
+        : `No work experience entries yet.`;
+    }
+
+    // Education
+    if (/education|study|studied|degree|university|college|school|qualification|academic|graduat|cgpa|gpa|bsc|b\.sc|hsc|ssc/.test(q)) {
+      const e = formatEdu();
+      return e
+        ? `<strong>${first}'s</strong> academic background:<br><br>${e}<br><br>Want to see his <a href="#experience">certifications</a> too?`
+        : `No education entries yet.`;
+    }
+
+    // Skills / tech stack
+    if (/skill|tech|stack|technolog|language|know|expert|proficien|framework|tool/.test(q)) {
+      return `Here's <strong>${first}'s</strong> core stack:<br><br>${formatSkills()}<br><br>Want details on a specific one, like <strong>Java</strong>, <strong>JavaScript</strong>, or <strong>QA</strong>?`;
+    }
+
+    // Projects — specific categories first
+    if (/java/.test(q) && /project|work|built|made|portfolio/.test(q)) {
+      const r = projectsByCategory('Java');
+      return r ? `Here's the <strong>Java</strong> work:<br><br>${r}` : `There are currently no Java-tagged projects. Check the full portfolio below!`;
+    }
+    if (/frontend|front-end|ui|ux/.test(q) && /project|work|built|made/.test(q)) {
+      const r = projectsByCategory('Frontend') || projectsByCategory('UI/UX');
+      return r ? `Here are the frontend / UI projects:<br><br>${r}` : `Let me show you the full portfolio!`;
+    }
+    if (/project|work|portfolio|built|made|case stud|showcase|examples?/.test(q)) {
+      return `Here's a snapshot of <strong>${first}'s</strong> work:<br><br>${formatProjects()}<br><br>Click any project card on the page to see full details. 🎨`;
+    }
+
+    // Contact
+    if (/contact|email|reach|message|talk|get in touch|connect|phone|call|number/.test(q)) {
+      return `You can reach <strong>${p.name}</strong> here:<br><br>📧 <strong>${p.email}</strong><br>📱 <strong>${p.phone || '—'}</strong><br>📍 ${p.location || '—'}<br>🔗 <a href="${p.github}" target="_blank">GitHub</a> · <a href="${p.linkedin}" target="_blank">LinkedIn</a><br><br>Or just scroll to the <a href="#contact">contact form</a> — he usually replies within a day!`;
+    }
+
+    // Availability / hire
+    if (/available|availabilit|freelance|hire|hiring|open to|work with|new project|recruit|vacancy|job/.test(q)) {
+      return `✅ Yes! <strong>${first}</strong> is <strong>open to new opportunities</strong> — frontend development, JavaScript work, software QA / testing roles, and Java-backed projects.<br><br>Best way to start: <a href="#contact">send a message</a>, email <strong>${p.email}</strong>, or call <strong>${p.phone || '—'}</strong>.`;
+    }
+
+    // Services
+    if (/service|offer|do you do|speciali|help with|can you/.test(q)) {
+      return `<strong>${first}</strong> specializes in:<br><br>🎨 <strong>Frontend Design</strong> — pixel-perfect, responsive interfaces<br>⚡ <strong>JavaScript Apps</strong> — interactive SPAs &amp; logic<br>☕ <strong>Java Development</strong> — OOP &amp; REST backends<br>🐞 <strong>Software Testing &amp; QA</strong> — test cases, bug reports, documentation<br>✨ <strong>UI/UX &amp; Motion</strong> — micro-interactions that feel premium<br>🖊 <strong>Design &amp; Documentation</strong> — graphic design, Word, Excel, PowerPoint<br><br>Want details on any of these?`;
+    }
+
+    // Pricing
+    if (/price|cost|rate|charge|budget|how much|fee|quote/.test(q)) {
+      return `Pricing depends on scope, timeline, and complexity. 💰<br><br>Best move: <a href="#contact">send a short brief</a> or email <strong>${p.email}</strong> with your project details, and you'll get a custom quote.`;
+    }
+
+    // Frontend specific
+    if (/frontend|front-end|html|css|responsive/.test(q)) {
+      return `<strong>Frontend</strong> is a core focus. He builds semantic HTML5, custom CSS3 animations, and responsive layouts. Recent work includes the <em>Silvia Motion Dark Showcase</em> with particle canvas and video backgrounds.<br><br>Want to see the <a href="#work">projects</a>?`;
+    }
+
+    // Java specific
+    if (/java|backend|back-end|oop|rest/.test(q)) {
+      return `Yes — <strong>Java</strong> is part of the stack. He studied object-oriented programming and data structures through his B.Sc. CSE at Uttara University, and builds clean architectures with REST fundamentals. See the <strong>Java Full-Stack Application</strong> in the <a href="#work">portfolio</a>.`;
+    }
+
+    // JavaScript specific
+    if (/javascript|js|es6|es2015|node/.test(q)) {
+      return `<strong>JavaScript ES6+</strong> is his primary language for interactivity. He works with modern syntax, state management, LocalStorage, API integration, and motion logic. See the <em>Interactive Modular UI System</em> project.`;
+    }
+
+    // QA / testing specific
+    if (/\bqa\b|testing|tester|test case|bug|quality assurance|manual test/.test(q)) {
+      return `<strong>Software Testing &amp; Quality Assurance</strong> is one of ${first}'s formal strengths — he completed training through the Department of CSE at <strong>Jagannath University</strong> (Sep 2024 – Feb 2025), covering test case design, defect reporting, and QA documentation.<br><br>It also means the front-ends he builds are tested, not just shipped. 🐞`;
+    }
+
+    // Languages
+    if (/language|bengali|english|speak/.test(q)) {
+      return `🗣 <strong>Languages:</strong><br><br>• <strong>Bengali</strong> — Native<br>• <strong>English</strong> — Professional proficiency (speaking, reading, writing, listening)<br><br>Handy for remote collaboration across time zones.`;
+    }
+
+    // Teaching background
+    if (/teacher|school|college|mentor|teach/.test(q)) {
+      return `Before focusing fully on development, ${first} worked as an <strong>Assistant Teacher</strong> at two institutions in Uttara, Dhaka — <em>Light House Career College</em> (Jun 2024 – Sep 2025) and <em>Uttara Model School &amp; College</em> (Oct 2025 – Jan 2026).<br><br>That experience built strong communication, mentoring, and time-management habits.`;
+    }
+
+    // About
+    if (/about|who (are|is)|yourself|arzan|antu|bio|story|personal/.test(q)) {
+      return `<strong>${p.name}</strong> is a ${(p.title || '').replace('—', '').trim()}. ${p.bio}<br><br>You can read more in the <a href="#about">About section</a>.`;
+    }
+
+    // Portfolio / site help
+    if (/portfolio|website|site|page|navigate|section/.test(q)) {
+      return `This portfolio has these key sections:<br><br>📁 <a href="#work">Work</a> — selected projects<br>🛠 <a href="#services">Services</a> — what he offers<br>👤 <a href="#about">About</a> — background &amp; philosophy<br>💻 <a href="#skills">Skills</a> — tech stack<br>🎓 <a href="#experience">Experience</a> — jobs, education &amp; certifications<br>✉️ <a href="#contact">Contact</a> — send a message<br><br>Which one interests you?`;
+    }
+
+    // Admin / secret
+    if (/admin|cms|dashboard|login|pin|password/.test(q)) {
+      return `🤫 That's a secret admin gateway! Try <kbd>Ctrl + Shift + A</kbd> or double-click the logo. (You didn't hear it from me.)`;
+    }
+
+    // Fallback
+    return getRandom([
+      `Great question! I can help with <strong>skills</strong>, <strong>projects</strong>, <strong>education</strong>, <strong>services</strong>, <strong>availability</strong>, and <strong>contact info</strong>. Which one would you like?`,
+      `I'm still learning that one. 🤖 Try asking about ${first}'s <strong>projects</strong>, <strong>skills</strong>, or <strong>education</strong>.`,
+      `Hmm, I don't have that yet. But I can tell you about his <strong>tech stack</strong>, <strong>portfolio</strong>, <strong>certifications</strong>, or <strong>availability</strong>!`,
+      `Let me point you in the right direction — ask me about <strong>services</strong>, <strong>projects</strong>, <strong>education</strong>, or <strong>contact</strong>.`
+    ]);
+  }
+
+  /* ---------- Rendering ---------- */
+  function addMessage(text, sender = 'bot', animate = true) {
+    const row = document.createElement('div');
+    row.className = `msg-row ${sender}${animate ? '' : ' no-anim'}`;
+    const avatarContent = sender === 'bot' ? '<i data-lucide="bot" class="w-3.5 h-3.5"></i>' : 'You';
+    row.innerHTML = `
+      <div class="msg-avatar">${avatarContent}</div>
+      <div class="msg-bubble">${text}</div>
+    `;
+    messagesEl.appendChild(row);
+    lucide.createIcons();
+    requestAnimationFrame(() => scrollToBottom());
+  }
+
+  function showTyping() {
+    if (isTyping) return;
+    isTyping = true;
+    const row = document.createElement('div');
+    row.className = 'msg-row bot typing-row';
+    row.id = 'ai-typing-indicator';
+    row.innerHTML = `
+      <div class="msg-avatar"><i data-lucide="bot" class="w-3.5 h-3.5"></i></div>
+      <div class="msg-bubble">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>`;
+    messagesEl.appendChild(row);
+    lucide.createIcons();
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    isTyping = false;
+    const el = document.getElementById('ai-typing-indicator');
+    if (el) el.remove();
+  }
+
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function renderSuggestions() {
+    suggestionsEl.innerHTML = '';
+    SUGGESTIONS.forEach(s => {
+      const chip = document.createElement('button');
+      chip.className = 'suggestion-chip';
+      chip.textContent = s;
+      chip.onclick = () => { sendMessage(s); };
+      suggestionsEl.appendChild(chip);
+    });
+  }
+
+  /* ---------- Send flow ---------- */
+  function sendMessage(text) {
+    const clean = (text || '').trim();
+    if (!clean) return;
+
+    addMessage(clean, 'user');
+    input.value = '';
+    input.focus();
+
+    showTyping();
+
+    const response = getResponse(clean);
+    const delay = 550 + Math.min(1100, response.length * 4);
+    setTimeout(() => {
+      hideTyping();
+      addMessage(response, 'bot');
+    }, delay);
+  }
+
+  /* ---------- Open / Close ---------- */
+  function greetIfNeeded() {
+    if (hasGreeted) return;
+    hasGreeted = true;
+    const p = state.profile;
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage(
+        `Hi! 👋 I'm <strong>Antu AI</strong> — ${p.name.split(' ')[0]}'s personal assistant.<br><br>I can tell you about his <strong>skills</strong>, <strong>projects</strong>, <strong>education</strong>, <strong>certifications</strong>, and how to <strong>get in touch</strong>.<br><br>What would you like to know?`,
+        'bot'
+      );
+    }, 700);
+  }
+
+  function open() {
+    if (isOpen) return;
+    isOpen = true;
+    panel.classList.add('open');
+    unreadDot.style.display = 'none';
+    if (window.innerWidth > 640) setTimeout(() => input.focus(), 350);
+    greetIfNeeded();
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    panel.classList.remove('open');
+  }
+
+  function togglePanel() { isOpen ? close() : open(); }
+
+  /* ---------- Events ---------- */
+  toggle.addEventListener('click', togglePanel);
+  closeBtn.addEventListener('click', close);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendMessage(input.value);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) close();
+  });
+
+  setTimeout(() => {
+    if (!hasGreeted && !isOpen) unreadDot.style.display = 'block';
+  }, 6000);
+
+  renderSuggestions();
+
+  return { open, close, toggle: togglePanel };
+})();
+
+/* ---------------- Init ---------------- */
+window.addEventListener('load', () => {
+  lucide.createIcons();
+  renderAll();
+  observeReveals();
+  animateCounters();
+  bindCursorHovers();
+  requestAnimationFrame(animateParticles);
+  onScroll();
+});
+
+const originalRenderAll = renderAll;
+renderAll = function () {
+  originalRenderAll();
+  bindCursorHovers();
+  observeReveals();
+};
+</script>
+</body>
+</html>
